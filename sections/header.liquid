@@ -1,0 +1,110 @@
+{% assign link_lists = linklists[section.settings.custom_menu].links %}
+<div class="header " x-data="{mobileMenuOpen:false}">
+  <div class="desktop-nav flex flex-row justify-between shadow-lg px-6 py-4 ">
+    <div class="logo left">
+      {{ section.settings.shop_name }}
+    </div>
+
+    <div x-on:click="mobileMenuOpen=!mobileMenuOpen" class="mobile-icon  md:hidden">
+      {% render 'icon-humberg' %}
+    </div>
+    <div x-data="{open:false}" class="center hidden flex-row gap-4 md:flex">
+      {% for link in link_lists %}
+
+        {% if link.links != blank %}
+          <button x-on:mouseover="open=!open" class=" inline-flex items-center ">
+            {{ link.title }}
+            {% render 'icon-dropdown' %}
+          </button>
+          {% comment %} 
+          submenus...
+          default hide, 
+          show on mouseover or click
+          {% endcomment %}
+          <div
+            x-show="open"
+            @click.away="open=false"
+            class="sub-menu-content">
+            {% for item in link.links %}
+              {{ item.title | link_to: item.url }}
+            {% endfor %}
+
+          </div>
+
+
+
+        {% else %}
+          {{ link.title | link_to: link.url }}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="right hidden md:flex flex-row gap-4">
+      <a href="{{ routes.cart_url }}">
+        {% render 'icon-shopping-bag' %}
+      </a>
+      {% if shop.customer_accounts_enabled == false %}
+        <a href="{{ customer.name}}">{% render 'icon-user-login' %}</a>
+      {% else %}
+        <a href="{{ routes.account_login_url }}">Login</a>
+        <a href="{{ routes.account_register_url }}">Register</a>
+      {% endif %}
+
+
+    </div>
+
+  </div>
+
+  <div x-show="mobileMenuOpen" class="mobile-menus shadow-lg flex flex-row justify-between items-start">
+
+    <div x-data="{mobopen:false}" class="links flex flex-col px-6 py-4 gap-2 ">
+      {% for link in linklists.main-menu.links %}
+        {% if link.links != blank %}
+          <button x-on:click="mobopen=!mobopen" class=" inline-flex items-center mob-btn ">
+            {{ link.title }}
+            {% render 'icon-dropdown' %}
+          </button>
+          {% comment %} 
+          submenus...
+          default hide, 
+          show on mouseover or click
+          {% endcomment %}
+          <div
+            x-show="mobopen"
+            @click.away="mobopen=false"
+            class="sub-menu-content">
+            {% for item in link.links %}
+              {{ item.title | link_to: item.url }}
+            {% endfor %}
+
+          </div>
+        {% else %}
+          {{ link.title | link_to: link.url }}
+        {% endif %}
+      {% endfor %}
+    </div>
+    <button x-on:click="mobileMenuOpen=false" class="close-menu px-6 py-4">
+      {% render 'icon-close' %}
+    </button>
+  </div>
+
+</div>
+{% schema %}
+  {
+    "name": "Heading Section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "shop_name",
+        "label": "Change Heading",
+        "default":"{{ shop.name }}",
+        "info": "this is about menu section"
+      }, {
+        "type": "link_list",
+        "id": "custom_menu",
+        "label": "Add Custom menu",
+        "default": "main-menu"
+      }
+    ]
+  }
+{% endschema %}
